@@ -112,7 +112,29 @@ We implemented the above mentioned approaches on our problem. Specifically, we f
 
 ### Dueling Double Deep Q-Network
 
+Deep Q Networks generally suffer from the bias problem, which refers to the network overestimating the rewards in noisy environments, and it also suffers from the moving target issue, which refers to the usage of the same network for training and evaluation. [2]
+
+To solve this problem Double Deep Q Networks were introduced (DDQN). This algorithm adds another Q network which is known as the target-Q network, and both of these networks are trained by random sampling of data from a fix-sized bank of points known as the replay memory. The introduction of this target network into the algorithm helps curb the moving target problem since both the training and evaluation happens in different networks. It also solves the bias problem due to the usage of replay memory.
+
+The Dueling Deep Q network algorithm uses a different formulation of the Q function. Here, the Q function for a state-action pair is divided into a sum of two terms, the first one being the value function for the state, and the second one being the advantage function for the state-action pair. 
+
+<div align="center" markdown="1">
+![Arch_DDDQN]({{ site.baseurl }}/images/rl/marl-trains/arch_dddqn.jpeg){:height="80%" width="80%"}   
+</div>
+
+As you can see from the image above, an embedding representation is calculated from the current state which is then fed into one set of dense layers to calculate the value for the state, and another set of dense layers to calculate the advantage of every action on the state under the policy. Instead of simply summing over them, which leads to the problem of identifiability, they are aggregated by subtracting the normalized advantage to the sum of value and advantage per action. This entire pipeline returns the Q values for a state for each possible action.
+
+When the above architecture for Q-value estimator is used along with a similarly constructed target Q-value estimator, and a replay memory, it becomes the Dueling Double Deep-Q Network (D3QN).
+
+
+
+
 ### Rainbow Deep Q-Network
+
+Rainbow DQN combines the many independent improvements that have been made on the traditional DQN algorithm over the years. This algorithm uses a mixture of Double Q-learning, Prioritized replay, Dueling networks, Multi-step learning, Distributional RL, and Noisy Nets. Double and Dueling networks were described in the previous section. Prioritized replay memory helps sample experiences such that there is more to learn from them. Multistep learning enables using accumulating rewards for n-step (rollout) before storing them, rather than using the single next-step reward. Distributional RL helps to learn the distribution of returns rather than expected returns. Noisy Nets allow the addition of noise to the parameters of the linear layers of the network, which enables “state-conditional exploration with a form of self-annealing” [3]
+
+
+
 
 ### Multi-Agent Attention Critic
 
@@ -128,7 +150,7 @@ Intuitively, the attention mechanism allows each agent to query other agents for
 MAA2C is a simple extension of the single-agent version of Actor Critic model, the only difference being that there is a centralized critic trained while the executing actors are trained per agent. In an actor-critic system, the critic estimates the value function from state-action input while the actor learns a policy via the policy gradient theorem. The advantage function is employed to reduce the variance of the policy gradient and provides better convergence.
 
 
-## Experimental Details
+## **Experimental Details**
 
 In this section we describe the specific hyperparameters for training our models for reproducibility of results. Note that these experiments were conducted on a small environment. The complexity of the environment is determined by the parameters as described in the Environment section. The experiments were carried on Google Colab using GPU accelerators.
 
@@ -153,8 +175,8 @@ Following are some of the common training parameters used across models:
 | LR (Rainbow)          |  Learning Rate for Rainbow DQN | $$5 \times 10^{-4}$$ |
 | LR Critic (MAAC)          |  Learning Rate for the Centralized Critic in MAAC  | $$10^{-4}$$ |
 | LR Agent (MAAC)          |  Learning Rate for Agents in MAAC   | $$10^{-4}$$ |
-| LR Agent (MAAC)          |  Learning Rate for Agents in MAAC   | $$10^{-4}$$ |
-| LR Agent (MAA2C)          |  Learning Rate for Agents in MAA2C   | $$10^{-4}$$ |
+| LR Critic (MAA2C)          |  Learning Rate for the Critic in MAA2C   | $$3 \times 10^{-4}$$ |
+| LR Agent (MAA2C)          |  Learning Rate for Agents in MAA2C   | $$3 \times 10^{-4}$$ |
 | Attention heads          |  Number of attention heads in MAAC  | $$4$$ |
 
 
@@ -200,3 +222,8 @@ We observe that we get the best performance from the IQL-based DDDQN model. This
 3. Iqbal S. et al (2019) "Actor-Attention-Critic for Multi-Agent Reinforcement Learning"
 4. Foerster Jakob N. (2018) "Deep Multi-Agent Reinforcement Learning"
 5. Paczolay G. et al (2020) "A New Advantage Actor-Critic Algorithm For Multi-Agent Environments"
+6. https://www.researchgate.net/publication/227139767_Railway_Dynamic_Traffic_Management_in_Complex_and_Densely_Used_Networks
+7. https://medium.com/analytics-vidhya/introduction-to-dueling-double-deep-q-network-d3qn-8353a42f9e55
+8. https://arxiv.org/pdf/1710.02298.pdf
+9. https://github.com/Curt-Park/rainbow-is-all-you-need
+10. https://github.com/ChenglongChen/pytorch-DRL
