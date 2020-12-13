@@ -4,10 +4,11 @@ title:  "Multi-Agent Reinforcement Learning on Trains"
 date:   2020-12-13 15:08:56 +0530
 categories: rl
 use_math: true
+author: Nikhil Supekar, Param Shah
 ---
 
 <div align="center" markdown="1">
-![Introduction]({{ site.baseurl }}/images/rl/marl-trains/intro.gif){:height="80%" width="80%"}
+![Introduction]({{ site.baseurl }}/images/rl/marl-trains/intro.gif){:height="70%" width="70%"}
 </div>
 
 ## **Problem Description**
@@ -19,6 +20,7 @@ We make use of the environment provided in the flatland challenge that is built 
 The goal of this project is not only to make the trains reach their destination without suffering from deadlocks or traffic accidents, but it is also to minimize the time required to reach the destination. Since most of the approaches to solve this problem efficiently were previously based on Operations Research techniques, through this project, we test various single-agent and multi-agent reinforcement learning algorithms and compare their efficiency.
 
 
+<br/>
 
 
 ## **Environment**
@@ -73,7 +75,7 @@ This environment contains various properties that can be configured to control t
 | observation_tree_depth          | The depth of the observation tree      |    2 |
 
 
-
+<br/>
 
 ## **Multi-Agent RL**
 
@@ -88,7 +90,9 @@ $$S$$ = set of states (all possible configurations of all agents)
 $$A_1, ..., A_N$$ = set of actions of the agents   
 $$O_1, ..., O_N$$ = set of observations of the agents   
 
-![MDP vs MG]({{ site.baseurl }}/images/rl/marl-trains/mdp_vs_mg.png)
+<div align="center" markdown="1">
+![MDP vs MG]({{ site.baseurl }}/images/rl/marl-trains/mdp_vs_mg.png){:height="80%" width="80%"} 
+</div>
 
 Each agent follows a stochastic policy $$\pi_{\theta_i} : O_i \times A_i \rightarrow [0, 1]$$ while transitioning according to the state transition function $$T : S \times A_1 \times ... A_n \rightarrow S$$ and receives a reward defined by the reward function $$r_i : S \times A_i \rightarrow \R$$. The aim of all agents is to maximize their total expected return $$R_i = \sum_{t = 0}^{T} \gamma^{t} r_i^t$$ over time $$T$$, with a discount factor $$\gamma \in [0, 1]$$.
 
@@ -116,6 +120,7 @@ A second and a recently popular approach is based on the principle of **Centrali
 
 
 
+<br/>
 
 ## **Models**
 
@@ -190,6 +195,7 @@ Following are some of the common training parameters used across models:
 | observation_tree_depth          | The depth of the observation tree      |    2 |
 
 
+<br/>
 
 ## **Results**
 
@@ -221,7 +227,22 @@ We observe that we get the best performance from the IQL-based DDDQN model. This
 *MAAC*
 </div>
 
+<br/>
 
+## **Future Work**
+
+<div align="center" markdown="1">
+![Introduction]({{ site.baseurl }}/images/rl/marl-trains/viz_dddqn_deadlock.gif){:height="70%" width="70%"}
+</div>
+
+Even though we see that D3QN performs the best on this comparatively simpler multi-agent environment, as discussed in the Results section, this could be because of the lesser complexity of the network. We believe that this can be proved by training on a more complex network for this environment. Some initial experiments do show that D3QNs can’t handle deadlocks as seen in the video above. So, we plan to continue working to improve the results in the following sequence:
+1. Make MA-A2C work decently on the simpler network by checking for code bugs and tuning hyperparameters 
+2. Train MAAC for a larger number of episodes in the order of 10000
+3. Test D3QN’s performance on a more complicated network in this environment and compare it with that of MA-A2C and MAAC.
+
+The development for this project can be found [here](https://github.com/nyu-ds-2019/flatland-reinforcement-learning)
+
+<br/>
 
 
 ## **References**
