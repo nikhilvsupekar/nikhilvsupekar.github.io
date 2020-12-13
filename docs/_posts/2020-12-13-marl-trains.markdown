@@ -26,7 +26,7 @@ The goal of this project is not only to make the trains reach their destination 
 
 The environment used for this project can be found here. The major features of this environment are:
 
-### The Observation Space
+### Observation Space
 
 There are two forms of observation spaces currently supported by the flatland environment. 
 
@@ -35,38 +35,31 @@ The first observation type is the Global Observation space, which is very simila
 The second observation type is the Tree Observation space, which makes use of the network/graph-like structure of the environment. The tree is 4-ary tree with each node’s 4 child edges representing nodes in the Left, Forward, Right, Backward direction. Each node in the tree consists of 12 features.
 
 
-### The Action Space
+### Action Space
 
 The action space for this problem is discrete having 5 possible options:
 
-0: DO NOTHING   
-1: DEVIATE LEFT   
-2: GO FORWARD   
-3: DEVIATE RIGHT   
-4: STOP   
+0: Do Nothing   
+1: Deviate Left   
+2: Go Forward   
+3: Deviate Right   
+4: Stop   
 
 One thing to note in this environment is that not all actions are possible at any given moment because the agent is restricted by the structure of the network.
 
-### The complexity control
+### Complexity control
 
-This environment contains various properties that can be configured to control the complexity of the resulting network. Some of these properties are,
+This environment contains various properties that can be configured to control the complexity of the resulting network. For this project, the complexity used was simple as we wanted to test the performance of different algorithms in a limited time and resources. Here are the parameters we used for reference:
 
-malfunction_rate: Poisson rate at which malfunctions happen for an agent   
-max_num_cities: Maximum number of stations in on observation   
-grid_mode: random vs uniform distribution of cities in a grid   
-max_rails_between_cities: Maximum number of rails connecting cities   
-max_rails_in_city: Maximum number of parallel tracks inside the city   
-observation_tree_depth: The depth of the observation tree   
 
-For this project, the complexity used was simple as we wanted to test the performance of different algorithms in a limited time and resources. Here are the parameters we used for reference:
-
-malfunction_rate = 2%   
-max_num_cities = 2   
-grid_mode = False   
-max_rails_between_cities = 2   
-max_rails_in_city = 3   
-observation_tree_depth = 2   
-
+| Property      | Description           | Complexity value used  |
+| ------------- |:-------------| :-----:|
+| malfunction_rate   | Poisson rate at which malfunctions happen for an agent | 2% |
+| max_num_cities     | Maximum number of stations in on observation      |   2 |
+| grid_mode          | random vs uniform distribution of cities in a grid      |    False |
+| max_rails_between_cities          | Maximum number of rails connecting cities      |    2 |
+| max_rails_in_city          | Maximum number of parallel tracks inside the city      |    3 |
+| observation_tree_depth          | The depth of the observation tree      |    2 |
 
 
 
@@ -115,7 +108,7 @@ A second and a recently popular approach is based on the principle of **Centrali
 
 ## **Models**
 
-We implemented the above mentioned approaches on our problem. Specifically, we focused on two IQL approaches and two MARL approaches based on decentralized execution. In this section, we briefly describe some of the algorithms we
+We implemented the above mentioned approaches on our problem. Specifically, we focused on two IQL approaches and two MARL approaches based on decentralized execution. In this section, we briefly describe the algorithms. The reader is encouraged to read the corresponding papers for a greater depth.
 
 ### Dueling Double Deep Q-Network
 
@@ -133,6 +126,38 @@ Intuitively, the attention mechanism allows each agent to query other agents for
 ### Multi-Agent Advantage Actor Critic
 
 MAA2C is a simple extension of the single-agent version of Actor Critic model, the only difference being that there is a centralized critic trained while the executing actors are trained per agent. In an actor-critic system, the critic estimates the value function from state-action input while the actor learns a policy via the policy gradient theorem. The advantage function is employed to reduce the variance of the policy gradient and provides better convergence.
+
+
+## Experimental Details
+
+In this section we describe the specific hyperparameters for training our models for reproducibility of results. Note that these experiments were conducted on a small environment. The complexity of the environment is determined by the parameters as described in the Environment section. The experiments were carried on Google Colab using GPU accelerators.
+
+Following are some of the common training parameters used across models:
+
+| Parameter      | Description           | Complexity value used  |
+| ------------- |:-------------| :-----:|
+| $$\gamma$$   | Discount value | 0.99 |
+| $$\tau$$   | Soft update rate | 0.001 |
+| batch_size   | Batch Size | 128 |
+| replay_size   | Size of Replay Memory | $$10^5$$ |
+| n_episodes   | Number of episodes | 2500 |
+| n_episodes   | Number of episodes | 2500 |
+| n_agents   | Number of agents | 2 |
+| malfunction_rate   | Poisson rate at which malfunctions happen for an agent | 2% |
+| max_num_cities     | Maximum number of stations in on observation      |   2 |
+| grid_mode          | random vs uniform distribution of cities in a grid      |    False |
+| max_rails_between_cities          | Maximum number of rails connecting cities      |    2 |
+| max_rails_in_city          | Maximum number of parallel tracks inside the city      |    3 |
+| observation_tree_depth          | The depth of the observation tree      |    2 |
+| LR (DDDQN)          |  Learning Rate for DDDQN  | $$5 \times 10^{-4}$$ |
+| LR (Rainbow)          |  Learning Rate for Rainbow DQN | $$5 \times 10^{-4}$$ |
+| LR Critic (MAAC)          |  Learning Rate for the Centralized Critic in MAAC  | $$10^{-4}$$ |
+| LR Agent (MAAC)          |  Learning Rate for Agents in MAAC   | $$10^{-4}$$ |
+| LR Agent (MAAC)          |  Learning Rate for Agents in MAAC   | $$10^{-4}$$ |
+| LR Agent (MAA2C)          |  Learning Rate for Agents in MAA2C   | $$10^{-4}$$ |
+| Attention heads          |  Number of attention heads in MAAC  | $$4$$ |
+
+
 
 
 ## **Results**
