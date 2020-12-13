@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Welcome to RL!"
+title:  "Multi-Agent Reinforcement Learning on Trains"
 date:   2020-12-13 15:08:56 +0530
 categories: rl
 use_math: true
