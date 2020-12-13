@@ -8,7 +8,66 @@ use_math: true
 
 
 
-## Multi-Agent RL
+## **Problem Description**
+
+This project’s main focus is to solve the problem of railway traffic control. One of the major bottlenecks faced by the transportation and logistic companies around the world right now is the punctuality of all their train operations. Punctuality not only involves regularity in time but also relies on several factors like ensuring safety and providing reliability of service. [1] Through this project, we aim to work on this domain by shifting solutions from traditional Operations Research techniques to a Reinforcement Learning approach!
+
+We make use of the environment provided in the flatland challenge that is built to tackle this exact problem of scheduling and rescheduling trains. They provide a grid-world environment that will be described in detail over the next section. The major moving parts in this problem, for now, are the trains (which are generally referred to as agents throughout this blog), stations (to which specific trains have to arrive at), and tracks (that form a network that connects different stations).
+
+The goal of this project is not only to make the trains reach their destination without suffering from deadlocks or traffic accidents, but it is also to minimize the time required to reach the destination. Since most of the approaches to solve this problem efficiently were previously based on Operations Research techniques, through this project, we test various single-agent and multi-agent reinforcement learning algorithms and compare their efficiency.
+
+
+
+
+## **Environment**
+
+
+The environment used for this project can be found here. The major features of this environment are:
+
+### The Observation Space
+
+There are two forms of observation spaces currently supported by the flatland environment. 
+
+The first observation type is the Global Observation space, which is very similar to the raw-pixel type of observation spaces used in the Atari games, with a slight difference. The global observation space is h x w x c, dimensional where h is the height of the environment, w is the width and c represents the channels. Instead of raw pixel values, each channel (total 5) provides some information about the current state. For example, channel 0 contains the one-hot encoding representation of an agent’s current position and direction, channel 1 contains information about other agent’s position and direction, etc.
+
+The second observation type is the Tree Observation space, which makes use of the network/graph-like structure of the environment. The tree is 4-ary tree with each node’s 4 child edges representing nodes in the Left, Forward, Right, Backward direction. Each node in the tree consists of 12 features.
+
+
+### The Action Space
+
+The action space for this problem is discrete having 5 possible options:   
+0: DO NOTHING   
+1: DEVIATE LEFT   
+2: GO FORWARD   
+3: DEVIATE RIGHT   
+4: STOP   
+
+One thing to note in this environment is that not all actions are possible at any given moment because the agent is restricted by the structure of the network.
+
+### The complexity control
+
+This environment contains various properties that can be configured to control the complexity of the resulting network. Some of these properties are,
+
+malfunction_rate: Poisson rate at which malfunctions happen for an agent   
+max_num_cities: Maximum number of stations in on observation   
+grid_mode: random vs uniform distribution of cities in a grid   
+max_rails_between_cities: Maximum number of rails connecting cities   
+max_rails_in_city: Maximum number of parallel tracks inside the city   
+observation_tree_depth: The depth of the observation tree   
+
+For this project, the complexity used was simple as we wanted to test the performance of different algorithms in a limited time and resources. Here are the parameters we used for reference:
+malfunction_rate = 2%
+max_num_cities = 2
+grid_mode = False
+max_rails_between_cities = 2
+max_rails_in_city = 3
+observation_tree_depth = 2
+
+
+
+
+
+## **Multi-Agent RL**
 
 Reinforcement learning has been successfully applied to solving tasks in various fields such as game playing and robotics. However, the most successful settings have predominantly been single-agent systems, where the behavior of other actors is not taken into account. Like our problem statement, many real-world environments are multi-agent settings that involve interaction between multiple agents. Multi-Agent RL is an active field of research with potentially significant impact on RL in real-world. In this section, we discuss aspects of multi-agent environments that theoretically differentiate between single-agent and multi-agent settings.
 
