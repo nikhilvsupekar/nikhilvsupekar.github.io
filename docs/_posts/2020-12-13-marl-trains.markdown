@@ -12,7 +12,7 @@ use_math: true
 
 ## **Problem Description**
 
-This project’s main focus is to solve the problem of railway traffic control. One of the major bottlenecks faced by the transportation and logistic companies around the world right now is the punctuality of all their train operations. Punctuality not only involves regularity in time but also relies on several factors like ensuring safety and providing reliability of service. [1] Through this project, we aim to work on this domain by shifting solutions from traditional Operations Research techniques to a Reinforcement Learning approach!
+One of the major bottlenecks faced by the transportation and logistic companies around the world right now is the punctuality of all their train operations. Punctuality not only involves regularity in time but also relies on several factors like ensuring safety and providing reliability of service [1]. This project’s main focus is to solve the problem of railway traffic control. Through this project, we aim to work on this domain by shifting solutions from traditional Operations Research techniques to a Reinforcement Learning approach!
 
 We make use of the environment provided in the flatland challenge that is built to tackle this exact problem of scheduling and rescheduling trains. They provide a grid-world environment that will be described in detail over the next section. The major moving parts in this problem, for now, are the trains (which are generally referred to as agents throughout this blog), stations (to which specific trains have to arrive at), and tracks (that form a network that connects different stations).
 
@@ -24,15 +24,26 @@ The goal of this project is not only to make the trains reach their destination 
 ## **Environment**
 
 
-The environment used for this project can be found here. The major features of this environment are:
+The environment used for this project can be found [here](https://flatland.aicrowd.com/faq/env.html) [6]. The major features of this environment are:
 
 ### Observation Space
 
-There are two forms of observation spaces currently supported by the flatland environment. 
+There are three forms of observation spaces currently supported by the flatland environment. 
+
+<div align="center" markdown="1">
+![Flatland observations]({{ site.baseurl }}/images/rl/marl-trains/flatland_obs.png){:height="100%" width="100%"}   
+</div>
 
 The first observation type is the Global Observation space, which is very similar to the raw-pixel type of observation spaces used in the Atari games, with a slight difference. The global observation space is h x w x c, dimensional where h is the height of the environment, w is the width and c represents the channels. Instead of raw pixel values, each channel (total 5) provides some information about the current state. For example, channel 0 contains the one-hot encoding representation of an agent’s current position and direction, channel 1 contains information about other agent’s position and direction, etc.
 
-The second observation type is the Tree Observation space, which makes use of the network/graph-like structure of the environment. The tree is 4-ary tree with each node’s 4 child edges representing nodes in the Left, Forward, Right, Backward direction. Each node in the tree consists of 12 features.
+The second type is a Local Observation space which is a constrained version of the global observation space.
+
+<div align="center" markdown="1">
+![Flatland tree observation]({{ site.baseurl }}/images/rl/marl-trains/flatland_tree.png){:height="70%" width="70%"}   
+</div>
+
+
+The third observation type is the Tree Observation space, which makes use of the network/graph-like structure of the environment. The tree is 4-ary tree with each node’s 4 child edges representing nodes in the Left, Forward, Right, Backward direction. Each node in the tree consists of 12 features. For training our policy networks, we would need to convert these tree representations into linear forms. This is achieved by a normalization procedure exposed by Flatland. The observation depth of the tree determines the state size as it is equal to the number of leaf nodes of the tree. For example, with an observation depth of 2, we work with a state size of 231.
 
 
 ### Action Space
@@ -66,11 +77,11 @@ This environment contains various properties that can be configured to control t
 
 ## **Multi-Agent RL**
 
-Reinforcement learning has been successfully applied to solving tasks in various fields such as game playing and robotics. However, the most successful settings have predominantly been single-agent systems, where the behavior of other actors is not taken into account. Like our problem statement, many real-world environments are multi-agent settings that involve interaction between multiple agents. Multi-Agent RL is an active field of research with potentially significant impact on RL in real-world. In this section, we discuss aspects of multi-agent environments that theoretically differentiate between single-agent and multi-agent settings.
+Reinforcement learning has been successfully applied to solving tasks in various fields such as game playing and robotics [7]. However, the most successful settings have predominantly been single-agent systems, where the behavior of other actors is not taken into account. Like our problem statement, many real-world environments are multi-agent settings that involve interaction between multiple agents. Multi-Agent RL is an active field of research [7] with potentially significant impact on RL in real-world. In this section, we discuss aspects of multi-agent environments that theoretically differentiate between single-agent and multi-agent settings.
 
 ### Concepts
 
-**Markov Games** are a multi-agent extension of Markov Decision Processes (MDPs) that are used to model single-agent systems. A Markov Game is tuple $$ \langle S, A_1, ..., A_N, O_1, ..., O_N \rangle $$ where:
+**Markov Games** are a multi-agent extension of Markov Decision Processes (MDPs) that are used to model single-agent systems [8]. A Markov Game is tuple $$ \langle S, A_1, ..., A_N, O_1, ..., O_N \rangle $$ where:
 
 $$N$$ = number of agents   
 $$S$$ = set of states (all possible configurations of all agents)   
@@ -91,9 +102,9 @@ MARL settings can be mainly characterized into the following:
 
 ### Challenges
 
-Simultaneous learning by all agents can make the environment **non-stationary** from the view of a single agent. This is so, since the action taken by one agent can influence the decisions made by others and the evolution of the state. Hence, it is necessary to take into account joint behavior of the agents. This is in contrast with the single-agent setting which violates the stationarity assumption (Markov property).
+Simultaneous learning by all agents can make the environment **non-stationary** from the view of a single agent [7]. This is so, since the action taken by one agent can influence the decisions made by others and the evolution of the state. Hence, it is necessary to take into account joint behavior of the agents. This is in contrast with the single-agent setting which violates the stationarity assumption (Markov property).
 
-To account for non-stationarity, we may attempt to tackle MARL from a combinatorial perspective by modeling the joint action space of all agents. Such a modeling exponentially increases the dimension of the action space and is hence cursed by dimensionality. This casuses an issue of **scalibilty** on the computation side and also complicates theoretical convergence guarantees.
+To account for non-stationarity, we may attempt to tackle MARL from a combinatorial perspective by modeling the joint action space of all agents. Such a modeling exponentially increases the dimension of the action space and is hence cursed by dimensionality. This casuses an issue of **scalibilty** on the computation side and also complicates theoretical convergence guarantees [7].
 
 
 
@@ -142,15 +153,15 @@ Rainbow DQN combines the many independent improvements that have been made on th
 ![MAAC_Architecture]({{ site.baseurl }}/images/rl/marl-trains/arch_maac.png){:height="70%" width="70%"}   
 </div>
 
-Intuitively, the attention mechanism allows each agent to query other agents for their actions and observations. Therefore, the q-value of an agent is a function of the agents observation and action, as well as of the weighted sum of values of other agents. This function is approximated by a MLP. Attention weights transform the state-action embeddings into keys and queries. A common embedding space of selectors, extractor and keys is made possible by parameter sharing.
+Intuitively, the attention mechanism allows each agent to query other agents for their actions and observations. Therefore, the q-value of an agent is a function of the agents observation and action, as well as of the weighted sum of values of other agents. This function is approximated by a MLP. Attention weights transform the state-action embeddings into keys and queries. A common embedding space of selectors, extractor and keys is made possible by parameter sharing [10].
 
 
 ### Multi-Agent Advantage Actor Critic
 
-MAA2C is a simple extension of the single-agent version of Actor Critic model, the only difference being that there is a centralized critic trained while the executing actors are trained per agent. In an actor-critic system, the critic estimates the value function from state-action input while the actor learns a policy via the policy gradient theorem. The advantage function is employed to reduce the variance of the policy gradient and provides better convergence.
+MAA2C is a simple extension of the single-agent version of Actor Critic model, the only difference being that there is a centralized critic trained while the executing actors are trained per agent. In an actor-critic system, the critic estimates the value function from state-action input while the actor learns a policy via the policy gradient theorem. The advantage function is employed to reduce the variance of the policy gradient and provides better convergence [11].
 
 
-## **Experimental Details**
+## **Experimentation Details**
 
 In this section we describe the specific hyperparameters for training our models for reproducibility of results. Note that these experiments were conducted on a small environment. The complexity of the environment is determined by the parameters as described in the Environment section. The experiments were carried on Google Colab using GPU accelerators.
 
@@ -163,14 +174,7 @@ Following are some of the common training parameters used across models:
 | batch_size   | Batch Size | 128 |
 | replay_size   | Size of Replay Memory | $$10^5$$ |
 | n_episodes   | Number of episodes | 2500 |
-| n_episodes   | Number of episodes | 2500 |
 | n_agents   | Number of agents | 2 |
-| malfunction_rate   | Poisson rate at which malfunctions happen for an agent | 2% |
-| max_num_cities     | Maximum number of stations in on observation      |   2 |
-| grid_mode          | random vs uniform distribution of cities in a grid      |    False |
-| max_rails_between_cities          | Maximum number of rails connecting cities      |    2 |
-| max_rails_in_city          | Maximum number of parallel tracks inside the city      |    3 |
-| observation_tree_depth          | The depth of the observation tree      |    2 |
 | LR (DDDQN)          |  Learning Rate for DDDQN  | $$5 \times 10^{-4}$$ |
 | LR (Rainbow)          |  Learning Rate for Rainbow DQN | $$5 \times 10^{-4}$$ |
 | LR Critic (MAAC)          |  Learning Rate for the Centralized Critic in MAAC  | $$10^{-4}$$ |
@@ -178,7 +182,12 @@ Following are some of the common training parameters used across models:
 | LR Critic (MAA2C)          |  Learning Rate for the Critic in MAA2C   | $$3 \times 10^{-4}$$ |
 | LR Agent (MAA2C)          |  Learning Rate for Agents in MAA2C   | $$3 \times 10^{-4}$$ |
 | Attention heads          |  Number of attention heads in MAAC  | $$4$$ |
-
+| malfunction_rate   | Poisson rate at which malfunctions happen for an agent | 2% |
+| max_num_cities     | Maximum number of stations in on observation      |   2 |
+| grid_mode          | random vs uniform distribution of cities in a grid      |    False |
+| max_rails_between_cities          | Maximum number of rails connecting cities      |    2 |
+| max_rails_in_city          | Maximum number of parallel tracks inside the city      |    3 |
+| observation_tree_depth          | The depth of the observation tree      |    2 |
 
 
 
@@ -217,13 +226,14 @@ We observe that we get the best performance from the IQL-based DDDQN model. This
 
 ## **References**
 
-1. Silver D. et al (2015) "Deep Reinforcement Learning with Double Q-learning"
-2. Zhang K. et al (2019) "Multi-Agent Reinforcement Learning: A Selective Overview of Theories and Algorithms"
-3. Iqbal S. et al (2019) "Actor-Attention-Critic for Multi-Agent Reinforcement Learning"
-4. Foerster Jakob N. (2018) "Deep Multi-Agent Reinforcement Learning"
-5. Paczolay G. et al (2020) "A New Advantage Actor-Critic Algorithm For Multi-Agent Environments"
-6. https://www.researchgate.net/publication/227139767_Railway_Dynamic_Traffic_Management_in_Complex_and_Densely_Used_Networks
-7. https://medium.com/analytics-vidhya/introduction-to-dueling-double-deep-q-network-d3qn-8353a42f9e55
-8. https://arxiv.org/pdf/1710.02298.pdf
-9. https://github.com/Curt-Park/rainbow-is-all-you-need
-10. https://github.com/ChenglongChen/pytorch-DRL
+1. Francesco C. et al (2010) “Railway Dynamic Traffic Management in Complex and Densely Used Networks”
+2. https://medium.com/analytics-vidhya/introduction-to-dueling-double-deep-q-network-d3qn-8353a42f9e55
+3. Matteo H. et al (2017) “Rainbow: Combining Improvements in Deep Reinforcement Learning”
+4. https://github.com/Curt-Park/rainbow-is-all-you-need
+5. https://github.com/ChenglongChen/pytorch-DRL
+6. Flatland Challenge: https://www.aicrowd.com/challenges/flatland-challenge
+7. Foerster Jakob N. (2018) "Deep Multi-Agent Reinforcement Learning"
+8. Zhang K. et al (2019) "Multi-Agent Reinforcement Learning: A Selective Overview of Theories and Algorithms"
+9. Silver D. et al (2015) "Deep Reinforcement Learning with Double Q-learning"
+10. Iqbal S. et al (2019) "Actor-Attention-Critic for Multi-Agent Reinforcement Learning"
+11. Paczolay G. et al (2020) "A New Advantage Actor-Critic Algorithm For Multi-Agent Environments"
