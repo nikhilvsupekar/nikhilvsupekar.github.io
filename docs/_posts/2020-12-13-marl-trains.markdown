@@ -6,7 +6,9 @@ categories: rl
 use_math: true
 ---
 
-
+<div align="center" markdown="1">
+![Introduction]({{ site.baseurl }}/images/rl/marl-trains/intro.gif){:height="80%" width="80%"}
+</div>
 
 ## **Problem Description**
 
@@ -106,9 +108,31 @@ To account for non-stationarity, we may attempt to tackle MARL from a combinator
 
 We explore two paradigms that MARL algorithms employ for overcoming these challenges. The first and a naive approach is to consider all agents independent and learn Q-values for each of them. This approach is known as **Independent Q-Learning** (IQL). From the view of one single agent, other agents are considered as part of the environment. As we can see intuitively, the algorithm is not learning any explicit co-operation amongst the agents and is not expected to converge. However, in practice, it ends up working quite well in some cases. This suggests the possible use of IQL as baselines for multi-agent systems.
 
-A second and a recently popular approach is based on the principle of **Centralized Training and Decentralized Execution**. The key trick here is that communication between agents is not restricted during learning, however the individual policies for all agents are limited in communication during execution. This is a reasonable paradigm because it can also be applied to some real-world settings.
+A second and a recently popular approach is based on the principle of **Centralized Training and Decentralized Execution**. The key trick here is that communication between agents is not restricted during learning, however the individual policies for all agents are limited in communication during execution. Neural networks that learn policies in MARL based on decentralized execution have some explicit components that learn the co-ordination amongst agents. This is a reasonable paradigm because it can also be applied to some real-world settings.
 
 
+
+
+## **Models**
+
+We implemented the above mentioned approaches on our problem. Specifically, we focused on two IQL approaches and two MARL approaches based on decentralized execution. In this section, we briefly describe some of the algorithms we
+
+### Dueling Double Deep Q-Network
+
+### Rainbow Deep Q-Network
+
+### Multi-Agent Attention Critic
+
+<div align="center" markdown="1">
+![MAAC_Architecture]({{ site.baseurl }}/images/rl/marl-trains/arch_maac.png){:height="70%" width="70%"}   
+</div>
+
+Intuitively, the attention mechanism allows each agent to query other agents for their actions and observations. Therefore, the q-value of an agent is a function of the agents observation and action, as well as of the weighted sum of values of other agents. This function is approximated by a MLP. Attention weights transform the state-action embeddings into keys and queries. A common embedding space of selectors, extractor and keys is made possible by parameter sharing.
+
+
+### Multi-Agent Advantage Actor Critic
+
+MAA2C is a simple extension of the single-agent version of Actor Critic model, the only difference being that there is a centralized critic trained while the executing actors are trained per agent. In an actor-critic system, the critic estimates the value function from state-action input while the actor learns a policy via the policy gradient theorem. The advantage function is employed to reduce the variance of the policy gradient and provides better convergence.
 
 
 ## **Results**
@@ -116,7 +140,7 @@ A second and a recently popular approach is based on the principle of **Centrali
 We present the results from D3QN, Rainbow DQN and MAAC. We report the metric 'normalized score' as is used in the Flatland challenge.
 
 <div align="center" markdown="1">
-![Results]({{ site.baseurl }}/images/rl/marl-trains/results.jpeg)
+![Results]({{ site.baseurl }}/images/rl/marl-trains/results.jpeg){:height="80%" width="80%"}   
 </div>
 
 
@@ -141,3 +165,13 @@ We observe that we get the best performance from the IQL-based DDDQN model. This
 *MAAC*
 </div>
 
+
+
+
+## **References**
+
+1. Silver D. et al (2015) "Deep Reinforcement Learning with Double Q-learning"
+2. Zhang K. et al (2019) "Multi-Agent Reinforcement Learning: A Selective Overview of Theories and Algorithms"
+3. Iqbal S. et al (2019) "Actor-Attention-Critic for Multi-Agent Reinforcement Learning"
+4. Foerster Jakob N. (2018) "Deep Multi-Agent Reinforcement Learning"
+5. Paczolay G. et al (2020) "A New Advantage Actor-Critic Algorithm For Multi-Agent Environments"
