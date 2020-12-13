@@ -35,7 +35,8 @@ The second observation type is the Tree Observation space, which makes use of th
 
 ### The Action Space
 
-The action space for this problem is discrete having 5 possible options:   
+The action space for this problem is discrete having 5 possible options:
+
 0: DO NOTHING   
 1: DEVIATE LEFT   
 2: GO FORWARD   
@@ -56,12 +57,13 @@ max_rails_in_city: Maximum number of parallel tracks inside the city
 observation_tree_depth: The depth of the observation tree   
 
 For this project, the complexity used was simple as we wanted to test the performance of different algorithms in a limited time and resources. Here are the parameters we used for reference:
-malfunction_rate = 2%
-max_num_cities = 2
-grid_mode = False
-max_rails_between_cities = 2
-max_rails_in_city = 3
-observation_tree_depth = 2
+
+malfunction_rate = 2%   
+max_num_cities = 2   
+grid_mode = False   
+max_rails_between_cities = 2   
+max_rails_in_city = 3   
+observation_tree_depth = 2   
 
 
 
@@ -80,7 +82,7 @@ $$S$$ = set of states (all possible configurations of all agents)
 $$A_1, ..., A_N$$ = set of actions of the agents   
 $$O_1, ..., O_N$$ = set of observations of the agents   
 
-![MDP vs MG]({{ site.baseurl }}/images/rl/mdp_vs_mg.png)
+![MDP vs MG]({{ site.baseurl }}/images/rl/marl-trains/mdp_vs_mg.png)
 
 Each agent follows a stochastic policy $$\pi_{\theta_i} : O_i \times A_i \rightarrow [0, 1]$$ while transitioning according to the state transition function $$T : S \times A_1 \times ... A_n \rightarrow S$$ and receives a reward defined by the reward function $$r_i : S \times A_i \rightarrow \R$$. The aim of all agents is to maximize their total expected return $$R_i = \sum_{t = 0}^{T} \gamma^{t} r_i^t$$ over time $$T$$, with a discount factor $$\gamma \in [0, 1]$$.
 
@@ -98,4 +100,44 @@ Simultaneous learning by all agents can make the environment **non-stationary** 
 
 To account for non-stationarity, we may attempt to tackle MARL from a combinatorial perspective by modeling the joint action space of all agents. Such a modeling exponentially increases the dimension of the action space and is hence cursed by dimensionality. This casuses an issue of **scalibilty** on the computation side and also complicates theoretical convergence guarantees.
 
+
+
+### Solutions
+
+We explore two paradigms that MARL algorithms employ for overcoming these challenges. The first and a naive approach is to consider all agents independent and learn Q-values for each of them. This approach is known as **Independent Q-Learning** (IQL). From the view of one single agent, other agents are considered as part of the environment. As we can see intuitively, the algorithm is not learning any explicit co-operation amongst the agents and is not expected to converge. However, in practice, it ends up working quite well in some cases. This suggests the possible use of IQL as baselines for multi-agent systems.
+
+A second and a recently popular approach is based on the principle of **Centralized Training and Decentralized Execution**. The key trick here is that communication between agents is not restricted during learning, however the individual policies for all agents are limited in communication during execution. This is a reasonable paradigm because it can also be applied to some real-world settings.
+
+
+
+
+## **Results**
+
+We present the results from D3QN, Rainbow DQN and MAAC. We report the metric 'normalized score' as is used in the Flatland challenge.
+
+<div align="center" markdown="1">
+![Results]({{ site.baseurl }}/images/rl/marl-trains/results.jpeg)
+</div>
+
+
+We observe that we get the best performance from the IQL-based DDDQN model. This might be because of the simplicity of the environment, but in general this approach may not scale well with increasing number of agents and increasing complexity of the train network. Note that the Rainbow DQN has not yet reached convergence and do so with more number of episodes. Also, the MAAC policies do not give good results compared to the DQNs. This might might attributable to the number of episodes required for convergence. The original MAAC paper trains agents for over 50k episodes. Since we were limited by resources provided by Google Colab, we could not train our policies for a very long time. From the visualization below, we can also see that the MAAC policy hasn't converged completely as even the best performing test case isn't optimal.
+
+<br/>
+<br/>
+
+
+<div align="center" markdown="1">
+![Results_DDDQN]({{ site.baseurl }}/images/rl/marl-trains/viz_dddqn.gif){:height="50%" width="50%"}   
+*DDDQN*
+</div>
+
+<div align="center" markdown="1">
+![Results_Rainbow]({{ site.baseurl }}/images/rl/marl-trains/viz_rainbow.gif){:height="50%" width="50%"}   
+*Rainbow DQN*
+</div>
+
+<div align="center" markdown="1">
+![Results_MAAC]({{ site.baseurl }}/images/rl/marl-trains/viz_maac.gif){:height="50%" width="50%"}   
+*MAAC*
+</div>
 
